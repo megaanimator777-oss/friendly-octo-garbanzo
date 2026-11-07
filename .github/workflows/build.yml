@@ -1,33 +1,15 @@
 name: Build APK
-
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
-
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Unzip project
-        run: unzip -q VazBass.zip
-
+      - run: for z in *.zip; do unzip -qo "$z"; done
       - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
-
-      - name: Build debug APK
-        working-directory: VazBass
-        run: gradle assembleDebug --no-daemon --stacktrace
-
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v3
+        with: { gradle-version: 8.7 }
+      - run: cd MusicViz && gradle assembleDebug
       - uses: actions/upload-artifact@v4
-        with:
-          name: VazBass-apk
-          path: VazBass/app/build/outputs/apk/debug/*.apk
+        with: { name: MusicViz-apk, path: MusicViz/app/build/outputs/apk/debug/app-debug.apk }
